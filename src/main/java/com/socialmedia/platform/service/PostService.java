@@ -48,8 +48,8 @@ public class PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!post.getUser().getEmail().equals(currentEmail)) {
+        String authenticatedUserName = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!post.getUser().getEmail().equals(authenticatedUserName)) {
             throw new RuntimeException("You are not the author");
         }
 
@@ -59,17 +59,19 @@ public class PostService {
         return toResponse(postRepository.save(post));
     }
 
-    public void deletePost(Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+    public void deletePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("貼文不存在"));
 
-        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!post.getUser().getEmail().equals(currentEmail)) {
+        String authenticatedUserName = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!post.getUser().getUserName().equals(authenticatedUserName)) {
             throw new RuntimeException("You are not the author");
         }
 
         postRepository.delete(post);
     }
+
 
     private PostResponse toResponse(Post post) {
         return PostResponse.builder()

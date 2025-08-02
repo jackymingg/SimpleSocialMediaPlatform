@@ -2,6 +2,7 @@ package com.socialmedia.platform.service;
 
 import java.util.Map;
 import java.util.HashMap;
+
 import com.socialmedia.platform.dto.LoginRequest;
 import com.socialmedia.platform.dto.RegisterRequest;
 import com.socialmedia.platform.repository.UserRepository;
@@ -25,7 +26,7 @@ public class AuthService {
             throw new RuntimeException("該手機號碼已被註冊");
         }
 
-        // 密碼加密，透過儲存過程註冊
+        // 密碼加密後，透過儲存過程註冊
         userRepository.registerUser(
                 request.getPhone(),
                 request.getEmail(),
@@ -33,7 +34,7 @@ public class AuthService {
                 request.getUserName()
         );
 
-        return jwtService.generateToken(request.getPhone());
+        return jwtService.generateToken(request.getPhone(), request.getUserName());
     }
 
     public Map<String, String> login(LoginRequest request) {
@@ -41,17 +42,13 @@ public class AuthService {
                 .filter(user -> passwordEncoder.matches(request.getPassword(), user.getPassword()))
                 .map(user -> {
                     Map<String, String> result = new HashMap<>();
-                    result.put("token", jwtService.generateToken(user.getPhone()));
+                    result.put("token", jwtService.generateToken(user.getPhone(), user.getUserName()));
                     result.put("userName", user.getUserName());
                     return result;
                 })
                 .orElseThrow(() -> new RuntimeException("帳號或密碼錯誤"));
     }
 }
-
-
-
-
 
 
 

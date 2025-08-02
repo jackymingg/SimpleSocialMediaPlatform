@@ -42,9 +42,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        String phone;
+        String userName;
         try {
-            phone = jwtService.extractPhone(token);
+            userName = jwtService.extractUserName(token);  // subject = userName
         } catch (ExpiredJwtException e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT 已過期");
             return;
@@ -53,8 +53,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (phone != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(phone);
+        if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
             if (jwtService.isTokenValid(token)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()

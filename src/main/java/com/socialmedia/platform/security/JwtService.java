@@ -1,4 +1,3 @@
-// JwtService.java
 package com.socialmedia.platform.security;
 
 import io.jsonwebtoken.*;
@@ -19,9 +18,9 @@ public class JwtService {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String phone) {
+    public String generateToken(String phone, String userName) {
         return Jwts.builder()
-                .setSubject(phone)
+                .setSubject(userName) // 設定 subject 為 userName
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -30,14 +29,14 @@ public class JwtService {
 
     public boolean isTokenValid(String token) {
         try {
-            extractPhone(token);
+            extractUserName(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
 
-    public String extractPhone(String token) {
+    public String extractUserName(String token) {
         if (token == null || token.trim().isEmpty() || !token.contains(".")) {
             throw new IllegalArgumentException("無效的 JWT token");
         }
