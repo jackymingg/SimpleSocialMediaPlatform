@@ -31,4 +31,50 @@ CREATE TABLE comments (
                           FOREIGN KEY (post_id) REFERENCES posts(post_id)
 );
 
+DELIMITER $$
+
+CREATE PROCEDURE sp_register_user (
+    IN p_phone VARCHAR(20),
+    IN p_email VARCHAR(100),
+    IN p_password VARCHAR(255),
+    IN p_user_name VARCHAR(50)
+)
+BEGIN
+    INSERT INTO users (phone, email, password, user_name)
+    VALUES (p_phone, p_email, p_password, p_user_name);
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_create_post (
+    IN p_user_id BIGINT,
+    IN p_content TEXT,
+    IN p_image VARCHAR(255)
+)
+BEGIN
+    INSERT INTO posts (user_id, content, image, created_at)
+    VALUES (p_user_id, p_content, p_image, NOW());
+END $$
+
+DELIMITER ;
+
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_add_comment (
+    IN p_user_id BIGINT,
+    IN p_post_id BIGINT,
+    IN p_content TEXT
+)
+BEGIN
+    INSERT INTO comments (user_id, post_id, content, created_at)
+    VALUES (p_user_id, p_post_id, p_content, NOW());
+END $$
+
+DELIMITER ;
+
 

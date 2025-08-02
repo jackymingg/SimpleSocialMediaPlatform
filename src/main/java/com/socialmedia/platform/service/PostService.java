@@ -6,10 +6,12 @@ import com.socialmedia.platform.model.Post;
 import com.socialmedia.platform.model.User;
 import com.socialmedia.platform.repository.PostRepository;
 import com.socialmedia.platform.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,19 +22,21 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public PostResponse createPost(PostRequest request) {
-        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByPhone(currentEmail)
+        String currentPhone = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByPhone(currentPhone)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Post post = Post.builder()
+        postRepository.createPost(user.getUserId(), request.getContent(), request.getImage());
+        return PostResponse.builder()
+                .userId(user.getUserId())
+                .userName(user.getUserName())
                 .content(request.getContent())
                 .image(request.getImage())
-                .user(user)
+                .createdAt(LocalDateTime.now())
                 .build();
-
-        return toResponse(postRepository.save(post));
     }
+
 
     public List<PostResponse> getAllPosts() {
         return postRepository.findAll().stream()

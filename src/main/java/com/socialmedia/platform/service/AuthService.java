@@ -2,9 +2,9 @@ package com.socialmedia.platform.service;
 
 import com.socialmedia.platform.dto.LoginRequest;
 import com.socialmedia.platform.dto.RegisterRequest;
-import com.socialmedia.platform.model.User;
 import com.socialmedia.platform.repository.UserRepository;
 import com.socialmedia.platform.security.JwtService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,31 +17,28 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
+    @Transactional
     public String register(RegisterRequest request) {
         if (userRepository.existsByPhone(request.getPhone())) {
             throw new RuntimeException("該手機號碼已被註冊");
         }
 
-        User user = User.builder()
-                .phone(request.getPhone())
-                .email(request.getEmail())
-                .userName(request.getUserName())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .build();
+        // 密碼加密，透過儲存過程註冊
+        userRepository.registerUser(
+                request.getPhone(),
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword()),
+                request.getUserName()
+        );
 
-        userRepository.save(user);
-        return jwtService.generateToken(user.getPhone());
+        return jwtService.generateToken(request.getPhone());
     }
 
     public String login(LoginRequest request) {
-        User user = userRepository.findByPhone(request.getPhone())
-                .orElseThrow(() -> new RuntimeException("查無此用戶"));
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("密碼錯誤");
-        }
-
-        return jwtService.generateToken(user.getPhone());
+        return userRepository.findByPhone(request.getPhone())
+                .filter(user -> passwordEncoder.matches(request.getPassword(), user.getPassword()))
+                .map(user -> jwtService.generateToken(user.getPhone()))
+                .orElseThrow(() -> new RuntimeException("帳號或密碼錯誤"));
     }
 }
 
