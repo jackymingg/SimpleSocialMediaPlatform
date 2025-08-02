@@ -1,5 +1,7 @@
 package com.socialmedia.platform.service;
 
+import java.util.Map;
+import java.util.HashMap;
 import com.socialmedia.platform.dto.LoginRequest;
 import com.socialmedia.platform.dto.RegisterRequest;
 import com.socialmedia.platform.repository.UserRepository;
@@ -34,13 +36,22 @@ public class AuthService {
         return jwtService.generateToken(request.getPhone());
     }
 
-    public String login(LoginRequest request) {
+    public Map<String, String> login(LoginRequest request) {
         return userRepository.findByPhone(request.getPhone())
                 .filter(user -> passwordEncoder.matches(request.getPassword(), user.getPassword()))
-                .map(user -> jwtService.generateToken(user.getPhone()))
+                .map(user -> {
+                    Map<String, String> result = new HashMap<>();
+                    result.put("token", jwtService.generateToken(user.getPhone()));
+                    result.put("userName", user.getUserName());
+                    return result;
+                })
                 .orElseThrow(() -> new RuntimeException("帳號或密碼錯誤"));
     }
 }
+
+
+
+
 
 
 

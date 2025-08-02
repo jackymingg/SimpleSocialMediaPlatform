@@ -30,6 +30,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        if (request.getServletPath().startsWith("/api/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -41,7 +46,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             phone = jwtService.extractPhone(token);
         } catch (ExpiredJwtException e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT已過期");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT 已過期");
+            return;
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "無效的 JWT");
             return;
         }
 

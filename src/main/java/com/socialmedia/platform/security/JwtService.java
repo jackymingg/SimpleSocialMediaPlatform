@@ -1,3 +1,4 @@
+// JwtService.java
 package com.socialmedia.platform.security;
 
 import io.jsonwebtoken.*;
@@ -12,7 +13,6 @@ import java.util.Date;
 public class JwtService {
 
     private static final String SECRET_KEY = "this-is-a-very-secure-secret-key-please-change-it-manually";
-
     private final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24hr
 
     private Key getSigningKey() {
@@ -30,7 +30,7 @@ public class JwtService {
 
     public boolean isTokenValid(String token) {
         try {
-            extractPhone(token); // 若能成功解析則有效
+            extractPhone(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
@@ -38,6 +38,9 @@ public class JwtService {
     }
 
     public String extractPhone(String token) {
+        if (token == null || token.trim().isEmpty() || !token.contains(".")) {
+            throw new IllegalArgumentException("無效的 JWT token");
+        }
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
@@ -46,5 +49,6 @@ public class JwtService {
                 .getSubject();
     }
 }
+
 
 

@@ -1,5 +1,6 @@
 package com.socialmedia.platform.controller;
 
+import java.util.Map;
 import com.socialmedia.platform.dto.LoginRequest;
 import com.socialmedia.platform.dto.RegisterRequest;
 import com.socialmedia.platform.service.AuthService;
@@ -22,10 +23,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Validated @RequestBody LoginRequest request) {
-        String token = authService.login(request);
-        return ResponseEntity.ok().body(token);
+    public ResponseEntity<Map<String, String>> login(@Validated @RequestBody LoginRequest request) {
+        Map<String, String> result = authService.login(request);
+        return ResponseEntity.ok(result);
     }
+
+
+
+
 }
 
 

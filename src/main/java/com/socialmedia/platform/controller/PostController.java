@@ -28,12 +28,12 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostResponse> update(@PathVariable Long id, @Valid @RequestBody PostRequest request) {
+    public ResponseEntity<PostResponse> update(@PathVariable("id") Long id, @Valid @RequestBody PostRequest request) {
         return ResponseEntity.ok(postService.updatePost(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
