@@ -1,3 +1,10 @@
+-- 建立資料庫
+CREATE DATABASE IF NOT EXISTS social_platform CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- 使用該資料庫
+USE social_platform;
+
+-- 刪除舊資料表
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS users;
@@ -31,6 +38,7 @@ CREATE TABLE comments (
                           FOREIGN KEY (post_id) REFERENCES posts(post_id)
 );
 
+-- 建立註冊SP
 DELIMITER $$
 
 CREATE PROCEDURE sp_register_user (
@@ -46,6 +54,7 @@ END $$
 
 DELIMITER ;
 
+-- 建立發文SP
 DELIMITER $$
 
 CREATE PROCEDURE sp_create_post (
@@ -60,9 +69,7 @@ END $$
 
 DELIMITER ;
 
-
-
-
+-- 建立留言SP
 DELIMITER $$
 
 CREATE PROCEDURE sp_add_comment (
@@ -76,5 +83,6 @@ BEGIN
 END $$
 
 DELIMITER ;
+
 
 
